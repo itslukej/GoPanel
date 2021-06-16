@@ -56,6 +56,7 @@ type (
 		PremiumLookupProxyKey string `toml:"premium-lookup-proxy-key"`
 		ObjectStore           string
 		AesKey                string `toml:"aes-key"`
+		NewAesKey             string `toml:"new-aes-key"`
 		ProxyUrl              string `toml:"discord-proxy-url"`
 	}
 
@@ -152,6 +153,7 @@ func fromEnvvar() {
 			PremiumLookupProxyKey: os.Getenv("PREMIUM_PROXY_KEY"),
 			ObjectStore:           os.Getenv("LOG_ARCHIVER_URL"),
 			AesKey:                os.Getenv("LOG_AES_KEY"),
+			NewAesKey:             os.Getenv("LOG_NEW_AES_KEY"),
 			ProxyUrl:              os.Getenv("DISCORD_PROXY_URL"),
 		},
 		Redis: Redis{

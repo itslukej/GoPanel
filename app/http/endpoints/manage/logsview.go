@@ -14,7 +14,7 @@ import (
 	"strconv"
 )
 
-var Archiver archiverclient.ArchiverClient
+var OldArchiver, NewArchiver archiverclient.ArchiverClient
 
 func LogViewHandler(ctx *gin.Context) {
 	store := sessions.Default(ctx)
@@ -73,19 +73,22 @@ func LogViewHandler(ctx *gin.Context) {
 		}
 
 		// retrieve ticket messages from bucket
-		messages, err := Archiver.Get(guildId, ticketId)
+		messages, err := OldArchiver.Get(guildId, ticketId)
 		if err != nil {
-			if errors.Is(err, archiverclient.ErrExpired) {
-				ctx.String(200, "Failed to retrieve archive - please contact the developers quoting error code: ErrExpired") // TODO: Actual error page
+			messages, err = NewArchiver.Get(guildId, ticketId)
+			if err != nil {
+				if errors.Is(err, archiverclient.ErrExpired) {
+					ctx.String(200, "Failed to retrieve archive - please contact the developers quoting error code: ErrExpired") // TODO: Actual error page
+					return
+				}
+
+				ctx.String(500, fmt.Sprintf("Failed to retrieve archive - please contact the developers: %s", err.Error()))
 				return
 			}
-
-			ctx.String(500, fmt.Sprintf("Failed to retrieve archive - please contact the developers: %s", err.Error()))
-			return
 		}
 
 		// format to html
-		html, err := Archiver.Encode(messages, fmt.Sprintf("ticket-%d", ticketId))
+		html, err := OldArchiver.Encode(messages, fmt.Sprintf("ticket-%d", ticketId))
 		if err != nil {
 			ctx.String(500, fmt.Sprintf("Failed to retrieve archive - please contact the developers: %s", err.Error()))
 			return
